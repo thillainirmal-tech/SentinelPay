@@ -56,11 +56,19 @@ spring:
           filters:
             - StripPrefix=0
 
-        # Bank balance only (PROTECTED) — internal endpoints NOT exposed externally
+        # Bank balance (PROTECTED)
         - id: bank-balance
           uri: ${BANK_SERVICE_URL}
           predicates:
             - Path=/bank/balance
+          filters:
+            - StripPrefix=0
+
+        # Bank account lookup by UPI ID (PROTECTED) — payee resolution for UPI payments
+        - id: bank-account-by-upi
+          uri: ${BANK_SERVICE_URL}
+          predicates:
+            - Path=/bank/account/by-upi/**
           filters:
             - StripPrefix=0
 

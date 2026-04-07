@@ -343,6 +343,32 @@ services:
     networks:
       - fraud-network
 
+  # ── Frontend ──────────────────────────────────────────────────────────────
+  # Nginx serves the React SPA on port 3001 and reverse-proxies /api/* to the
+  # API Gateway over the internal Docker network (fraud-api-gateway:8085).
+  #
+  # WHY this is necessary:
+  #   REACT_APP_* variables are baked into the JS bundle at npm run build time.
+  #   The bundle runs in the user's browser, which cannot resolve Docker-internal
+  #   hostnames like "fraud-api-gateway". Setting REACT_APP_API_BASE_URL to a
+  #   Docker service name would cause every API call to fail in the browser.
+  #
+  #   Instead the React app calls http://localhost:3001/api/… (same-origin),
+  #   and Nginx forwards those requests to fraud-api-gateway:8085 using internal
+  #   Docker DNS. The browser never sees the backend hostname; no CORS headers
+  #   are needed for /api responses.
+  frontend:
+    build:
+      context: ../sentinelpay-frontend
+    container_name: sentinelpay-frontend
+    restart: unless-stopped
+    ports:
+      - "3001:80"
+    depends_on:
+      - api-gateway
+    networks:
+      - fraud-network
+
 # ════════════════════════════════════════════════════════════
 # VOLUMES
 # ════════════════════════════════════════════════════════════

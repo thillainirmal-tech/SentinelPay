@@ -335,22 +335,34 @@ public class FraudDetectionService {
     // ══════════════════════════════════════════════════════════════════════
 
     /**
-     * Returns true if the two transactions are from different locations
-     * AND both location values are non-null/non-blank.
+     * Returns true if the two transactions are from meaningfully different locations.
+     *
+     * "UNKNOWN" is the sentinel value stored by UpiPaymentService when the client
+     * did not supply a location (pre-fix frontend requests).  Comparing a real
+     * location against "UNKNOWN" would always trigger impossible-travel false positives,
+     * so we skip the check whenever either side is "UNKNOWN".
      */
     private boolean isDifferentLocation(TransactionEvent previous, TransactionEvent current) {
         return previous.getLocation() != null
                 && current.getLocation() != null
+                && !previous.getLocation().equalsIgnoreCase("UNKNOWN")
+                && !current.getLocation().equalsIgnoreCase("UNKNOWN")
                 && !previous.getLocation().equalsIgnoreCase(current.getLocation());
     }
 
     /**
-     * Returns true if the two transactions used different devices
-     * AND both device values are non-null/non-blank.
+     * Returns true if the two transactions used meaningfully different devices.
+     *
+     * "UNKNOWN" is the sentinel value stored by UpiPaymentService when the client
+     * did not supply a device (pre-fix frontend requests).  Comparing a real device
+     * identifier against "UNKNOWN" would always trigger a device-change false positive,
+     * so we skip the check whenever either side is "UNKNOWN".
      */
     private boolean isDifferentDevice(TransactionEvent previous, TransactionEvent current) {
         return previous.getDevice() != null
                 && current.getDevice() != null
+                && !previous.getDevice().equalsIgnoreCase("UNKNOWN")
+                && !current.getDevice().equalsIgnoreCase("UNKNOWN")
                 && !previous.getDevice().equalsIgnoreCase(current.getDevice());
     }
 
