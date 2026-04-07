@@ -359,7 +359,7 @@ services:
   #   are needed for /api responses.
   frontend:
     build:
-      context: ../sentinelpay-frontend
+      context: ./sentinelpay-frontend
     container_name: sentinelpay-frontend
     restart: unless-stopped
     ports:
