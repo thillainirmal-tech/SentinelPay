@@ -31,19 +31,8 @@
 Built to mirror real-world fintech systems, it combines deterministic rule evaluation, Redis-backed behavioural pattern analysis, and OpenAI GPT contextual reasoning into a unified fraud verdict engine. The entire system runs with a single command and ships with full observability via Prometheus and Grafana.
 
 ```
-User submits UPI payment
-       ↓
-  API Gateway (JWT auth)
-       ↓
-  Transaction Service → Kafka → Fraud Detection Service
-                                       ↓
-                            Layer 1: Rule Engine     (<1ms)
-                            Layer 2: Redis History   (behavioural)
-                            Layer 3: OpenAI GPT      (AI scoring)
-                                       ↓
-                              SAFE | REVIEW | FRAUD
-                                       ↓
-                         Bank Transfer OR Block + Email Alert
+<img width="3787" height="2744" alt="diagram-export-4-8-2026-7_41_16-AM" src="https://github.com/user-attachments/assets/137722fe-91e1-41d4-89d7-7650f8e815e9" />
+
 ```
 
 ---
@@ -78,46 +67,8 @@ Kafka decouples payment submission from analysis — users see `PENDING` instant
 ## 🏗️ Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                          CLIENT (Browser)                                   │
-│                     React + Material UI (Port 3001)                         │
-└─────────────────────────────┬───────────────────────────────────────────────┘
-                              │ HTTP (Nginx reverse proxy)
-┌─────────────────────────────▼───────────────────────────────────────────────┐
-│                         API GATEWAY                                         │
-│                   Spring Cloud Gateway (Port 8085)                          │
-│         JWT Validation · Route Matching · X-User-Email injection            │
-│         X-Trace-Id propagation · CORS · Rate limiting                       │
-└──────┬─────────────────┬──────────────────┬──────────────────┬──────────────┘
-       │                 │                  │                  │
-┌──────▼──────┐  ┌───────▼───────┐  ┌──────▼──────┐  ┌───────▼───────┐
-│ AUTH SERVICE│  │  TRANSACTION  │  │  FRAUD DET. │  │ BANK SERVICE  │
-│  Port 8083  │  │   SERVICE     │  │   SERVICE   │  │   Port 8084   │
-│             │  │   Port 8081   │  │  Port 8082  │  │               │
-│ Register    │  │               │  │             │  │ Balances      │
-│ Login       │  │ POST /upi/pay │  │ 3-Layer AI  │  │ Debit/Credit  │
-│ JWT issue   │  │ → Kafka pub   │  │ Redis cache │  │ UPI lookup    │
-│             │  │ Razorpay ord. │  │ OpenAI GPT  │  │ Compensation  │
-└──────┬──────┘  └───────┬───────┘  └──────┬──────┘  └───────────────┘
-       │                 │                  │
-       │         ┌───────▼──────────────────▼──────┐
-       │         │           APACHE KAFKA           │
-       │         │  Topic: transactions (3 parts)   │
-       │         │  Topic: notifications            │
-       │         │  Topic: transactions.DLT         │
-       │         └─────────────────────────────────┘
-       │                                   │
-       │                          ┌────────▼────────┐
-       │                          │ NOTIFICATION SVC │
-       │                          │   Port 8086      │
-       │                          │ Email via SMTP   │
-       │                          └─────────────────┘
-       │
-┌──────▼──────────────────────────────────────────────────────────────────────┐
-│                           INFRASTRUCTURE                                    │
-│  MySQL 8 (auth_db, bank_db)  ·  Redis 7 (fraud cache, rate limits)         │
-│  Zookeeper · Prometheus · Grafana · Kafka UI                                │
-└─────────────────────────────────────────────────────────────────────────────┘
+<img width="2162" height="4520" alt="diagram-export-4-8-2026-7_44_40-AM" src="https://github.com/user-attachments/assets/4ae901d0-1fa5-40fa-8d3c-c6c297f6d9e3" />
+
 ```
 
 ### Service Communication
@@ -248,55 +199,8 @@ fraud-detection-system/
 ### UPI Payment Lifecycle
 
 ```
-1. USER submits payment on React Dashboard
-   POST /api/upi/pay  { payeeUpiId, amount, device, location, merchantCategory }
+<img width="8684" height="1632" alt="diagram-export-4-8-2026-7_46_40-AM" src="https://github.com/user-attachments/assets/d8131bcb-1ec2-4047-b2d8-f16686df3529" />
 
-2. API GATEWAY
-   ├── Validates JWT (extracts email)
-   ├── Injects X-User-Email header (identity source of truth)
-   ├── Generates X-Trace-Id (UUID) for distributed tracing
-   └── Routes to transaction-service
-
-3. TRANSACTION SERVICE
-   ├── Validates request body (Jakarta Bean Validation)
-   ├── Looks up payee UPI → bank account (bank-service)
-   ├── Publishes TransactionEvent to Kafka topic "transactions"
-   └── Returns HTTP 202 { transactionId, status: "PENDING" }
-
-4. KAFKA delivers event to FRAUD DETECTION SERVICE
-
-5. FRAUD DETECTION SERVICE — 3-layer pipeline:
-   │
-   ├── Layer 1: Rule Engine
-   │   ├── Amount > ₹10,000 threshold? → FRAUD
-   │   ├── Unknown location for this user? → FRAUD
-   │   └── > 10 transactions today? → FRAUD (velocity)
-   │
-   ├── Layer 2: Redis History Analyser (if rules pass)
-   │   ├── Two different cities within 5 minutes? → FRAUD (impossible travel)
-   │   └── Device changed since last transaction? → REVIEW (escalate to AI)
-   │
-   └── Layer 3: OpenAI GPT (if history passes or REVIEW from L2)
-       ├── confidence > 0.6  → FRAUD
-       ├── confidence 0.4–0.6 → REVIEW (human analyst queue)
-       └── confidence < 0.4  → SAFE
-
-6. FRAUD RESULT stored in Redis (TTL: 72h)
-   Key: "fraud:result:{transactionId}"
-
-7. If SAFE → PAYMENT PROCESSING
-   ├── Debit payer's bank account (bank-service)
-   ├── Credit payee's bank account (bank-service)
-   └── Update PaymentRecord in Redis (status: SUCCESS)
-
-   If FRAUD → BLOCK + NOTIFY
-   ├── No money moves
-   ├── Publish NotificationEvent to Kafka "notifications" topic
-   └── Email sent to user (notification-service → SMTP)
-
-8. FRONTEND polls GET /api/fraud/result/{transactionId}
-   ├── 202 → still pending (retry after retryAfterSeconds hint)
-   └── 200 → verdict ready (render SAFE / REVIEW / FRAUD UI)
 ```
 
 ---
