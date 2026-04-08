@@ -3,6 +3,7 @@ package com.fraud.detection.controller;
 import com.fraud.detection.producer.NotificationProducer;
 import com.fraud.detection.service.RedisService;
 import com.fraud.common.dto.NotificationEvent;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
@@ -10,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 
 @Slf4j
 @RestController
@@ -25,6 +28,11 @@ public class RazorpayWebhookController {
 
     @Value("${razorpay.key-secret}")
     private String razorpaySecret;
+
+    // Redirect destination after Razorpay payment completes.
+    // Injected from FRONTEND_URL env var; falls back to localhost:3001 for local dev.
+    @Value("${frontend.url:http://localhost:3001}")
+    private String frontendUrl;
 
     @PostMapping("/webhook")
     public String handleWebhook(@RequestBody String payload,
@@ -94,12 +102,27 @@ public class RazorpayWebhookController {
         return "OK";
     }
 
+    /**
+     * POST /api/razorpay/verify — called by the Razorpay payment.html form after
+     * the user completes (or fails) a payment in the Razorpay widget.
+     *
+     * On success: verifies the HMAC-SHA256 signature, marks the payment as SUCCESS
+     *             in Redis, then redirects the browser to the React frontend's
+     *             /payment-result page so the user sees a proper UI.
+     *
+     * On failure: marks payment as FAILED in Redis and redirects to /payment-result
+     *             with status=failed so the frontend can show an error screen.
+     *
+     * Redirect target is controlled by ${frontend.url} (env var FRONTEND_URL),
+     * defaulting to http://localhost:3001 for local development.
+     */
     @PostMapping("/verify")
-    public String verifyPayment(
+    public void verifyPayment(
             @RequestParam String razorpay_payment_id,
             @RequestParam String razorpay_order_id,
             @RequestParam String razorpay_signature,
-            @RequestParam String transactionId) {
+            @RequestParam String transactionId,
+            HttpServletResponse response) throws IOException {
 
         log.info("[RAZORPAY] Verifying payment for txId={}", transactionId);
 
@@ -109,14 +132,18 @@ public class RazorpayWebhookController {
             boolean isValid = verifySignature(payload, razorpay_signature);
 
             if (!isValid) {
-                throw new RuntimeException("Invalid signature");
+                throw new RuntimeException("Invalid Razorpay signature");
             }
+
             redisService.savePaymentId(transactionId, razorpay_payment_id);
             redisService.markPaymentSuccess(transactionId);
 
             log.info("[TX-TRACE] txId={} stage=PAYMENT_SUCCESS", transactionId);
 
-            return "SUCCESS";
+            // Redirect browser to React frontend — user sees payment result UI
+            response.sendRedirect(
+                frontendUrl + "/payment-result?transactionId=" + transactionId + "&status=success"
+            );
 
         } catch (Exception e) {
 
@@ -125,7 +152,10 @@ public class RazorpayWebhookController {
             log.error("[TX-TRACE] txId={} stage=PAYMENT_FAILED reason={}",
                     transactionId, e.getMessage());
 
-            return "FAILED";
+            // Redirect to frontend with failure status so the React page can display an error
+            response.sendRedirect(
+                frontendUrl + "/payment-result?transactionId=" + transactionId + "&status=failed"
+            );
         }
     }
 

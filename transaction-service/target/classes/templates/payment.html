@@ -77,55 +77,106 @@
 </div>
 
 <script th:inline="javascript">
-    const options = {
-        key: /*[[${rzpKey}]]*/ "",
+    /*
+     * Thymeleaf-injected variables
+     * ─────────────────────────────────────────────────────────────────────────
+     * txnId      : our internal transaction ID
+     * orderId    : Razorpay order ID created by fraud-detection-service
+     * amount     : display amount in INR (e.g. 10).  Multiplied by 100 below
+     *              because the Razorpay SDK always expects paise.  When order_id
+     *              is present the SDK uses the order amount for the actual charge;
+     *              the options.amount field keeps the SDK happy during init.
+     * frontendUrl: React frontend base URL (http://localhost:3001 in dev).
+     *              ALL /api/* calls from this page MUST go through this host:
+     *                payment.html (8081, transaction-service)
+     *                  → Nginx (3001) → API Gateway (8085)
+     *                  → fraud-detection-service (8082)
+     *              A relative URL from port 8081 would 404 — no razorpay routes
+     *              exist on the transaction-service.
+     */
+    const txnId       = /*[[${txnId}]]*/ "";
+    const orderId     = /*[[${orderId}]]*/ "";
+    const amount      = /*[[${amount}]]*/ 0;
+    const frontendUrl = /*[[${frontendUrl}]]*/ "http://localhost:3001";
+
+    // ─── Razorpay options ─────────────────────────────────────────────────────
+    var options = {
+        key:      /*[[${rzpKey}]]*/ "",
+
+        /*
+         * amount (paise) — required by the Razorpay SDK for proper initialisation
+         * even when order_id is provided.  Without this field certain SDK builds
+         * silently skip modal creation and fire ondismiss immediately, causing the
+         * browser to land on /payment-result?status=failed before the user ever
+         * sees the payment UI.
+         */
+        amount:   amount * 100,
+
         currency: /*[[${currency}]]*/ "INR",
-        name: /*[[${merchantName}]]*/ "Merchant",
-        description: "Transaction " + /*[[${txnId}]]*/ "",
-        order_id: /*[[${orderId}]]*/ "",
+        name:     "SentinelPay",
+        order_id: orderId,
 
+        /*
+         * handler — called by the Razorpay SDK ONLY after the user completes
+         * payment inside the modal.  Sends the three Razorpay tokens to the
+         * backend via fetch (application/x-www-form-urlencoded so they bind to
+         * the existing @RequestParam signature without any backend change), then
+         * navigates to the React payment-result page.
+         */
         handler: function (response) {
+            console.log("🔐 Razorpay payment complete — sending verify request", response);
 
-            console.log("🔐 Sending to backend for verification", response);
-
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = "/api/razorpay/verify";
-
-            const fields = {
+            const params = new URLSearchParams({
                 razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_signature: response.razorpay_signature,
-                transactionId: /*[[${txnId}]]*/ ""
-            };
+                razorpay_order_id:   response.razorpay_order_id,
+                razorpay_signature:  response.razorpay_signature,
+                transactionId:       txnId
+            });
 
-            for (let key in fields) {
-                const input = document.createElement('input');
-                input.type = 'hidden';
-                input.name = key;
-                input.value = fields[key];
-                form.appendChild(input);
-            }
-
-            document.body.appendChild(form);
-            form.submit();
+            fetch(frontendUrl + "/api/razorpay/verify", {
+                method:  "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body:    params.toString()
+            })
+            .then(function () {
+                console.log("✅ Verification complete — redirecting");
+                window.location.href =
+                    frontendUrl + "/payment-result?transactionId=" + txnId + "&status=success";
+            })
+            .catch(function (err) {
+                console.error("❌ Verification request failed", err);
+                window.location.href =
+                    frontendUrl + "/payment-result?transactionId=" + txnId + "&status=failed";
+            });
         },
 
+        /*
+         * ondismiss — fired when the user explicitly closes the Razorpay modal
+         * (clicks the ✕ button) WITHOUT completing payment.  We redirect to the
+         * result page so the user gets feedback rather than being left on the blank
+         * payment page.  PaymentResult.jsx will poll the backend for the real
+         * status and show the authoritative result.
+         *
+         * ⚠️  Do NOT replace this with alert() — if the SDK fails to open the modal
+         * (e.g. due to a bad key or network error), ondismiss fires immediately and
+         * an alert() would leave the user stuck on a dead page with no recovery path.
+         */
         modal: {
             ondismiss: function () {
-                alert("❌ Payment cancelled");
+                console.warn("⚠️ Razorpay modal dismissed — redirecting to result page");
+                window.location.href =
+                    frontendUrl + "/payment-result?transactionId=" + txnId + "&status=failed";
             }
-        },
-
-        theme: { color: "#3399cc" }
+        }
     };
 
+    // ─── Button handler ───────────────────────────────────────────────────────
     document.getElementById('payBtn').onclick = function () {
 
-        console.log("OPTIONS:", options);
+        console.log("Pay button clicked — orderId:", orderId, "| options:", options);
 
-        if (!options.order_id || options.order_id === "null") {
-            alert("⚠️ Order not ready yet. Wait 2 seconds and refresh.");
+        if (!orderId || orderId === "null" || orderId === "") {
+            alert("⚠️ Order not ready yet. Please wait a moment and refresh.");
             return;
         }
 

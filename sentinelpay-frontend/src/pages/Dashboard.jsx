@@ -143,6 +143,17 @@ export default function Dashboard() {
       const txId = resp.transactionId;
       toast.success(`Payment submitted — ID: ${txId}`);
 
+      // ── RAZORPAY: hand off to the hosted Thymeleaf payment page ───────────
+      // The /pay endpoint is served directly by transaction-service (port 8081)
+      // and is NOT routed through Nginx/Gateway — so we redirect the browser
+      // there rather than polling.  PaymentResult.jsx handles status sync after
+      // the user completes (or dismisses) the Razorpay modal.
+      if (formData.paymentMode === 'RAZORPAY') {
+        const paymentBase = process.env.REACT_APP_PAYMENT_PAGE_BASE_URL || 'http://localhost:8081';
+        window.location.href = `${paymentBase}/pay?transactionId=${txId}`;
+        return;   // browser navigates away; skip BANK polling path entirely
+      }
+
       // Step 2: Poll transaction-service until overallStatus leaves PENDING
       setPolling(true);
       const txStatus = await pollTransactionStatus(txId, POLL_ATTEMPTS, POLL_INTERVAL);

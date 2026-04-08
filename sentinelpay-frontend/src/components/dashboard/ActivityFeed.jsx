@@ -5,16 +5,19 @@
  * Shows the last 8 transactions with verdict badge and amount.
  */
 
-import React, { memo } from 'react';
+import React, { memo, useState, useCallback } from 'react';
 import {
   Card, CardContent, Box, Typography, List, ListItem,
   ListItemAvatar, ListItemText, Avatar, Divider, Chip,
+  Tooltip, IconButton,
 } from '@mui/material';
 import HistoryIcon      from '@mui/icons-material/History';
 import CheckCircleIcon  from '@mui/icons-material/CheckCircle';
 import BlockIcon        from '@mui/icons-material/Block';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import HourglassTopIcon from '@mui/icons-material/HourglassTop';
+import ContentCopyIcon  from '@mui/icons-material/ContentCopy';
+import DoneIcon         from '@mui/icons-material/Done';
 import { formatCurrency, formatDateTime, truncateTxId } from '../../utils/formatters';
 import { useAppState } from '../../context/AppStateContext';
 
@@ -33,6 +36,63 @@ const DEMO_FEED = [
   { transactionId: 'DEMO-005', fraudStatus: 'SAFE',   amount: 200,   payeeUpiId: 'coffee@upi',   submittedAt: new Date(Date.now() - 900000).toISOString() },
 ];
 
+// ── TxIdCell — short display + tooltip + copy button ────────────────────────
+const TxIdCell = memo(function TxIdCell({ txId }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = useCallback((e) => {
+    e.stopPropagation();
+    navigator.clipboard.writeText(txId).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    });
+  }, [txId]);
+
+  const shortId = truncateTxId(txId, 10);   // e.g. "385d5ffa-3…"
+
+  return (
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25, minWidth: 0 }}>
+      <Tooltip
+        title={
+          <Typography variant="caption" fontFamily="monospace" sx={{ userSelect: 'all' }}>
+            {txId}
+          </Typography>
+        }
+        placement="top"
+        arrow
+      >
+        <Typography
+          variant="body2"
+          fontWeight={600}
+          fontFamily="monospace"
+          fontSize="0.78rem"
+          sx={{ cursor: 'default', whiteSpace: 'nowrap' }}
+        >
+          {shortId}
+        </Typography>
+      </Tooltip>
+
+      <Tooltip title={copied ? 'Copied!' : 'Copy full ID'} placement="top" arrow>
+        <IconButton
+          size="small"
+          onClick={handleCopy}
+          sx={{
+            p: 0.25,
+            color: copied ? 'success.main' : 'text.disabled',
+            '&:hover': { color: 'primary.main' },
+            transition: 'color 0.2s',
+          }}
+        >
+          {copied
+            ? <DoneIcon sx={{ fontSize: 13 }} />
+            : <ContentCopyIcon sx={{ fontSize: 13 }} />
+          }
+        </IconButton>
+      </Tooltip>
+    </Box>
+  );
+});
+
 const ActivityItem = memo(function ActivityItem({ tx, isLast }) {
   return (
     <>
@@ -42,11 +102,9 @@ const ActivityItem = memo(function ActivityItem({ tx, isLast }) {
         </ListItemAvatar>
         <ListItemText
           primary={
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Typography variant="body2" fontWeight={600} fontFamily="monospace" fontSize="0.78rem">
-                {truncateTxId(tx.transactionId, 14)}
-              </Typography>
-              <Typography variant="body2" fontWeight={700}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 1 }}>
+              <TxIdCell txId={tx.transactionId} />
+              <Typography variant="body2" fontWeight={700} flexShrink={0}>
                 {formatCurrency(tx.amount)}
               </Typography>
             </Box>

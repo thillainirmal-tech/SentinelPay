@@ -16,6 +16,17 @@ public class PaymentPageController {
     @Value("${razorpay.key-id}")
     private String razorpayKey;
 
+    /**
+     * Frontend base URL — used in payment.html so the Razorpay success handler
+     * can call POST /api/razorpay/verify through the correct host (Nginx → gateway
+     * → fraud-detection-service) rather than sending to this service's own port
+     * which has no /api/razorpay/* routes.
+     *
+     * Reads FRONTEND_URL env var; falls back to http://localhost:3001 for local dev.
+     */
+    @Value("${FRONTEND_URL:http://localhost:3001}")
+    private String frontendUrl;
+
     @Autowired
     private FraudServiceClient fraudServiceClient;
 
@@ -55,6 +66,13 @@ public class PaymentPageController {
         model.addAttribute("txnId", transactionId);
 
         model.addAttribute("rzpKey", razorpayKey);
+
+        // Expose frontend URL so payment.html can POST verify to the correct host.
+        // payment.html is served from the transaction-service (port 8081); relative
+        // URLs like /api/razorpay/verify would resolve to this service which has no
+        // such endpoint.  The verify endpoint lives in fraud-detection-service and is
+        // reachable via Nginx → API-Gateway → fraud-detection-service.
+        model.addAttribute("frontendUrl", frontendUrl);
 
         return "payment";
     }

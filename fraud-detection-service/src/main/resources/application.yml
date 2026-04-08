@@ -28,6 +28,12 @@ razorpay:
   key-id: ${RAZORPAY_KEY_ID:not-configured}
   key-secret: ${RAZORPAY_KEY_SECRET:not-configured}
 
+# Frontend base URL — used to redirect the browser after Razorpay payment verification.
+# In Docker: set FRONTEND_URL env var (see docker-compose.yml).
+# Local dev default: http://localhost:3001 (CRA dev server / Nginx port).
+frontend:
+  url: ${FRONTEND_URL:http://localhost:3001}
+
 management:
   endpoints:
     web:

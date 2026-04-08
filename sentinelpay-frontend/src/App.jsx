@@ -24,16 +24,20 @@ import ErrorBoundary             from './components/common/ErrorBoundary';
 import GlobalLoadingBar          from './components/common/GlobalLoadingBar';
 
 // ── Lazy page imports ─────────────────────────────────────────────────────────
-const Login        = lazy(() => import('./pages/Login'));
-const Register     = lazy(() => import('./pages/Register'));
-const Dashboard    = lazy(() => import('./pages/Dashboard'));
-const Transactions = lazy(() => import('./pages/Transactions'));
-const FraudAlerts  = lazy(() => import('./pages/FraudAlerts'));
-const Profile      = lazy(() => import('./pages/Profile'));
-const Analytics    = lazy(() => import('./pages/Analytics'));
-const AdminPanel   = lazy(() => import('./pages/admin/AdminPanel'));
-const AppLayout    = lazy(() => import('./components/layout/AppLayout'));
-const NotFound     = lazy(() => import('./pages/NotFound'));
+const Login         = lazy(() => import('./pages/Login'));
+const Register      = lazy(() => import('./pages/Register'));
+const Dashboard     = lazy(() => import('./pages/Dashboard'));
+const Transactions  = lazy(() => import('./pages/Transactions'));
+const FraudAlerts   = lazy(() => import('./pages/FraudAlerts'));
+const Profile       = lazy(() => import('./pages/Profile'));
+const Analytics     = lazy(() => import('./pages/Analytics'));
+const AdminPanel    = lazy(() => import('./pages/admin/AdminPanel'));
+const AppLayout     = lazy(() => import('./components/layout/AppLayout'));
+const NotFound      = lazy(() => import('./pages/NotFound'));
+// PaymentResult is intentionally NOT behind PrivateRoute — the browser arrives
+// here via a Razorpay redirect immediately after payment, before the React app
+// has had a chance to restore the JWT from localStorage.
+const PaymentResult = lazy(() => import('./pages/PaymentResult'));
 
 // ── Suspense + ErrorBoundary wrapper ──────────────────────────────────────────
 function SuspensePage({ children }) {
@@ -88,6 +92,13 @@ export default function App() {
             <Route path="/admin" element={<SuspensePage><AdminPanel /></SuspensePage>} />
           </Route>
         </Route>
+
+        {/* ── Razorpay payment result — public, no auth required ─────────────── */}
+        {/* Backend redirects here after POST /api/razorpay/verify succeeds/fails */}
+        <Route
+          path="/payment-result"
+          element={<SuspensePage><PaymentResult /></SuspensePage>}
+        />
 
         {/* ── Default redirects ──────────────────────────────────────────────── */}
         <Route path="/"  element={<Navigate to="/dashboard" replace />} />

@@ -61,9 +61,16 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
     // ── Path Allow-list ───────────────────────────────────────────────────────
 
     private boolean isPublicPath(String path) {
-        // /auth/** — login, register, health (no JWT required)
-        // /actuator/** — Spring Boot management endpoints
-        return path.startsWith("/auth/") || path.startsWith("/actuator/");
+        // /auth/**              — login, register, health (no JWT required)
+        // /actuator/**          — Spring Boot management endpoints
+        // /api/razorpay/**      — Razorpay verify + webhook:
+        //     POST /api/razorpay/verify  is called by the payment.html browser form
+        //       immediately after the Razorpay widget succeeds — no JWT present.
+        //     POST /api/razorpay/webhook is a server-to-server call from Razorpay
+        //       infrastructure — also has no JWT.
+        return path.startsWith("/auth/")
+            || path.startsWith("/actuator/")
+            || path.startsWith("/api/razorpay/");
     }
 
     // ─────────────────────────────────────────────────────────────────────────

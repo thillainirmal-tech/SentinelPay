@@ -56,6 +56,16 @@ spring:
           filters:
             - StripPrefix=0
 
+        # Razorpay payment verification + webhook (PUBLIC — browser redirect target)
+        # POST /api/razorpay/verify is called by payment.html form after Razorpay widget.
+        # POST /api/razorpay/webhook is called by Razorpay servers — no JWT available.
+        - id: razorpay-verify
+          uri: ${FRAUD_SERVICE_URL}
+          predicates:
+            - Path=/api/razorpay/**
+          filters:
+            - StripPrefix=0
+
         # Bank balance (PROTECTED)
         - id: bank-balance
           uri: ${BANK_SERVICE_URL}
