@@ -30,10 +30,10 @@
 
 Built to mirror real-world fintech systems, it combines deterministic rule evaluation, Redis-backed behavioural pattern analysis, and OpenAI GPT contextual reasoning into a unified fraud verdict engine. The entire system runs with a single command and ships with full observability via Prometheus and Grafana.
 
-```
+
 <img width="3787" height="2744" alt="diagram-export-4-8-2026-7_41_16-AM" src="https://github.com/user-attachments/assets/137722fe-91e1-41d4-89d7-7650f8e815e9" />
 
-```
+
 
 ---
 
@@ -66,10 +66,9 @@ Kafka decouples payment submission from analysis — users see `PENDING` instant
 
 ## 🏗️ Architecture
 
-```
+
 <img width="2162" height="4520" alt="diagram-export-4-8-2026-7_44_40-AM" src="https://github.com/user-attachments/assets/4ae901d0-1fa5-40fa-8d3c-c6c297f6d9e3" />
 
-```
 
 ### Service Communication
 
@@ -198,10 +197,9 @@ fraud-detection-system/
 
 ### UPI Payment Lifecycle
 
-```
+
 <img width="8684" height="1632" alt="diagram-export-4-8-2026-7_46_40-AM" src="https://github.com/user-attachments/assets/d8131bcb-1ec2-4047-b2d8-f16686df3529" />
 
-```
 
 ---
 
