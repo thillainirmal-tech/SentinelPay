@@ -174,14 +174,18 @@ Kafka acts as the event backbone while Redis enables sub-millisecond behavioural
 - GET `/bank/balance`
 - GET `/bank/account/by-upi/{upiId}`
 
-<details>
-<summary>🐳 Docker Setup</summary>
+</details>
+
+## 🐳 Docker Setup
 
 ```bash
 git clone https://github.com/thillainirmal-tech/SentinelPay.git
 cd SentinelPay
 cp .env.example .env
-docker-compose up -d --build
+docker compose up -d --build
+```
+
+Review the generated `.env` before starting the stack and never commit real credentials.
 
 ## 🤝 Contribution Guide
 
