@@ -35,7 +35,7 @@
         <spring-boot.version>3.2.3</spring-boot.version>
         <spring-cloud.version>2023.0.0</spring-cloud.version>
         <spring-ai.version>1.0.0-M3</spring-ai.version>
-        <lombok.version>1.18.30</lombok.version>
+        <lombok.version>1.18.48</lombok.version>
     </properties>
 
     <!-- Centralized Dependency Management -->
