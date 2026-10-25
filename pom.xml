@@ -34,7 +34,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring-boot.version>3.2.3</spring-boot.version>
         <spring-cloud.version>2023.0.0</spring-cloud.version>
-        <spring-ai.version>1.0.0-M3</spring-ai.version>
+        <spring-ai.version>2.1.0-M1</spring-ai.version>
         <lombok.version>1.18.30</lombok.version>
     </properties>
 
