@@ -17,7 +17,7 @@
     "react-hook-form": "^7.51.5",
     "react-hot-toast": "^2.4.1",
     "react-router-dom": "^6.23.1",
-    "recharts": "^2.12.4"
+    "recharts": "^3.10.1"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^5.17.0",
