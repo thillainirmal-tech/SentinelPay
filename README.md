@@ -2,6 +2,9 @@
 
 <img src="https://img.shields.io/badge/SentinelPay-AI%20Fraud%20Detection-22C55E?style=for-the-badge&logo=shield&logoColor=white" alt="SentinelPay"/>
 
+[![CI](https://github.com/thillainirmal-tech/SentinelPay/actions/workflows/ci.yml/badge.svg)](https://github.com/thillainirmal-tech/SentinelPay/actions/workflows/ci.yml)
+[![License](https://img.shields.io/github/license/thillainirmal-tech/SentinelPay)](LICENSE)
+
 # 🛡️ SentinelPay
 
 ### AI-Powered Real-Time Fraud Detection for UPI Payments
