@@ -1,5 +1,0 @@
-com\fraud\common\dto\TransactionEvent.class
-com\fraud\common\dto\FraudResult$FraudStatus.class
-com\fraud\common\dto\FraudResult.class
-com\fraud\common\dto\FraudResult$FraudResultBuilder.class
-com\fraud\common\dto\TransactionEvent$TransactionEventBuilder.class

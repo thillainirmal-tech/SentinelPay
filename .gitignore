@@ -1,75 +1,48 @@
-# =============================================================
-# .gitignore — fraud-detection-system
-# =============================================================
-
-# ── SECRETS — NEVER commit these ──────────────────────────────
-# .env holds real API keys, DB passwords, JWT secrets, etc.
-# Use .env.example as the committed reference template.
+# Secrets
 .env
 *.env
 .env.*
 !.env.example
 
-# ── Maven build output ────────────────────────────────────────
+# Java and Maven
 target/
 **/target/
+*.class
 *.jar
 *.war
 *.ear
-*.class
 
-# ── IDE — IntelliJ IDEA ───────────────────────────────────────
+# IDEs
 .idea/
-*.iml
-*.iws
-*.ipr
-out/
-
-# ── IDE — VS Code ─────────────────────────────────────────────
 .vscode/
-*.code-workspace
-
-# ── IDE — Eclipse ─────────────────────────────────────────────
+*.iml
 .classpath
 .project
 .settings/
+out/
 bin/
 
-# ── OS metadata ───────────────────────────────────────────────
-.DS_Store
-.DS_Store?
-._*
-Thumbs.db
-desktop.ini
-ehthumbs.db
-
-# ── Logs ──────────────────────────────────────────────────────
-*.log
-logs/
-**/logs/
-spring.log
-
-# ── Node (if frontend added later) ────────────────────────────
+# Frontend dependencies and output
 node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# ── Test and coverage reports ─────────────────────────────────
-**/surefire-reports/
-**/failsafe-reports/
-**/jacoco/
-**/*.exec
+dist/
 coverage/
 
-# ── Docker volumes / local data ───────────────────────────────
+# Logs, operating-system files, and local data
+*.log
+logs/
+.DS_Store
+Thumbs.db
 docker/data/
 mysql-data/
 redis-data/
 
-# ── Temporary files ───────────────────────────────────────────
+# Temporary files and test reports
 *.tmp
 *.swp
 *.swo
 *~
 *.bak
+**/surefire-reports/
+**/failsafe-reports/
+**/jacoco/
+**/*.exec
