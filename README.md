@@ -38,13 +38,17 @@
 Published in **International Journal for Research in Advanced Computer Science and Engineering (IJRACSE)**  
 **Volume 12 • Issue 1 • May 2026**
 
-This project has been officially validated and published as an international research article for its hybrid AI-assisted digital payment fraud detection architecture.
+The linked article describes the project's hybrid AI-assisted digital payment fraud detection architecture. Publication is separate from verification of the current repository revision.
 
 ---
 
 ## 🚀 Overview
 
-**SentinelPay** is a production-grade event-driven fintech fraud prevention platform that analyses every UPI payment transaction through a **3-stage intelligent fraud verdict engine before transaction authorization**.
+**SentinelPay** is an event-driven fintech portfolio project that routes simulated UPI payments through a **3-stage fraud verdict engine before bank-service debit**.
+
+### Engineering review path
+
+Start with the [engineering evidence guide](docs/08-engineering-evidence.md) for source links, verification commands, current CI coverage, and remaining validation work. The bank service simulates account balances; production readiness and benchmark reproducibility require separate evidence.
 
 The platform combines:
 
@@ -71,7 +75,7 @@ to deliver a scalable fraud detection ecosystem built for modern digital payment
 | Average Processing Latency | **~50 ms** |
 | Throughput | **1200 TPS** |
 
-These measured results were obtained from a 50,000 transaction fraud simulation benchmark with real-time event-driven orchestration.
+These are the project's reported results for a 50,000-transaction fraud simulation. This repository does not currently include the dataset, executable benchmark harness, or raw result artifacts needed to reproduce these figures. They are not acceptance thresholds enforced by CI; see the [verification limits](docs/08-engineering-evidence.md#benchmark-evidence).
 
 ---
 
