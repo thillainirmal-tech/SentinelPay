@@ -24,6 +24,7 @@ bin/
 
 # Frontend dependencies and output
 node_modules/
+sentinelpay-frontend/build/
 dist/
 coverage/
 

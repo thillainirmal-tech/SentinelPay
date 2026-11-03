@@ -10,16 +10,16 @@
  *  - Cancellation of in-flight GET duplicates
  */
 
-import axios from 'axios';
 import { server } from '../../mocks/server';
 import { rest }   from 'msw';
-import { errorHandlers } from '../../mocks/handlers';
 
 const BASE = 'http://localhost:8085';
 
 // Dynamically import apiClient so localStorage is pre-seeded before module load
 let apiClient;
 beforeAll(async () => {
+  // Exercise the real retry policy without waiting through production backoff.
+  process.env.REACT_APP_RETRY_DELAY_MS = '0';
   ({ default: apiClient } = await import('../../api/axiosConfig'));
 });
 
@@ -107,10 +107,12 @@ describe('axiosConfig — error normalisation', () => {
   });
 
   test('normalises 500 with no body into standard message', async () => {
+    let attempts = 0;
     server.use(
-      rest.get(`${BASE}/server-error`, (req, res, ctx) =>
-        res(ctx.status(500), ctx.json({}))
-      )
+      rest.get(`${BASE}/server-error`, (req, res, ctx) => {
+        attempts += 1;
+        return res(ctx.status(500), ctx.json({}));
+      })
     );
 
     try {
@@ -120,5 +122,6 @@ describe('axiosConfig — error normalisation', () => {
       expect(err.status).toBe(500);
       expect(err.message).toMatch(/internal server error/i);
     }
+    expect(attempts).toBe(4); // Initial request plus three retries.
   });
 });

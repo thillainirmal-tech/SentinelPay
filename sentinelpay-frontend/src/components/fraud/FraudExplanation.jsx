@@ -16,7 +16,7 @@
 import React, { memo } from 'react';
 import {
   Box, Typography, Chip, Divider, LinearProgress,
-  List, ListItem, ListItemIcon, ListItemText, Tooltip,
+  List, ListItem, ListItemIcon, ListItemText,
   Card, CardContent, Alert, Collapse,
 } from '@mui/material';
 import CheckCircleIcon    from '@mui/icons-material/CheckCircle';
@@ -162,6 +162,7 @@ const FraudExplanation = memo(function FraudExplanation({ result }) {
             })()}
           </Box>
           <Chip
+            role="status"
             label={statusMeta.label}
             color={statusMeta.color}
             size="small"

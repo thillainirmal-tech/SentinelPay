@@ -14,21 +14,15 @@
 
 import React, { useMemo } from 'react';
 import {
-  Box, Typography, Grid, Card, CardContent, Chip, Divider, Alert,
+  Box, Typography, Grid, Card, CardContent, Chip, Alert,
 } from '@mui/material';
 import BarChartIcon       from '@mui/icons-material/BarChart';
-import TrendingUpIcon     from '@mui/icons-material/TrendingUp';
-import CheckCircleIcon    from '@mui/icons-material/CheckCircle';
-import BlockIcon          from '@mui/icons-material/Block';
-import WarningAmberIcon   from '@mui/icons-material/WarningAmber';
-import SpeedIcon          from '@mui/icons-material/Speed';
 import {
   AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip as RTooltip,
   Legend, ResponsiveContainer,
 } from 'recharts';
 import { format, subHours } from 'date-fns';
-import StatsCard        from '../components/dashboard/StatsCard';
 import { useAppState }  from '../context/AppStateContext';
 
 // ── Palette ───────────────────────────────────────────────────────────────────

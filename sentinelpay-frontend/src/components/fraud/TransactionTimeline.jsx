@@ -35,33 +35,6 @@ import PsychologyIcon     from '@mui/icons-material/Psychology';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import TaskAltIcon        from '@mui/icons-material/TaskAlt';
 
-// ── Step icon with status-aware colour ───────────────────────────────────────
-function StepStatusIcon({ state, icon, size = 24 }) {
-  const map = {
-    done:    { color: 'success.main', Icon: CheckCircleIcon },
-    active:  { color: 'primary.main', Icon: null },
-    blocked: { color: 'error.main',   Icon: BlockIcon },
-    warning: { color: 'warning.main', Icon: WarningAmberIcon },
-    pending: { color: 'text.disabled', Icon: null },
-  };
-  const meta = map[state] || map.pending;
-
-  if (state === 'active') {
-    return (
-      <Box sx={{ width: size, height: size, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <CircularProgress size={size - 4} thickness={5} color="primary" />
-      </Box>
-    );
-  }
-
-  const DisplayIcon = meta.Icon || (() => <Box sx={{ fontSize: size * 0.6 }}>{icon}</Box>);
-  return (
-    <Box sx={{ color: meta.color, display: 'flex', alignItems: 'center' }}>
-      <DisplayIcon fontSize="small" />
-    </Box>
-  );
-}
-
 // ── Derive step states from result ───────────────────────────────────────────
 function deriveStates(result, loading) {
   // Pending state — analysis not done yet
