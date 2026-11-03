@@ -1,15 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import {
   Box, Typography, Card, CardContent, Grid, Avatar,
-  TextField, Button, Divider, Chip, CircularProgress,
+  TextField, Divider, Chip,
   Alert, List, ListItem, ListItemIcon, ListItemText,
 } from '@mui/material';
-import PersonIcon           from '@mui/icons-material/Person';
-import EmailIcon            from '@mui/icons-material/Email';
 import AccountBalanceIcon   from '@mui/icons-material/AccountBalance';
 import SecurityIcon         from '@mui/icons-material/Security';
 import CheckCircleIcon      from '@mui/icons-material/CheckCircle';
-import toast                from 'react-hot-toast';
 import { useAuth }          from '../context/AuthContext';
 import { getBalance }       from '../api/bankApi';
 import { formatCurrency }   from '../utils/formatters';

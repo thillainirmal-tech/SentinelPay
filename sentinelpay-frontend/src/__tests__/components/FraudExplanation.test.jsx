@@ -40,18 +40,18 @@ describe('FraudExplanation', () => {
   test('renders SAFE verdict', () => {
     render(<FraudExplanation result={SAFE} />);
     expect(screen.getByText(/approved/i)).toBeInTheDocument();
-    expect(screen.getByText('Safe')).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent('Safe');
   });
 
   test('renders FRAUD verdict with blocked headline', () => {
     render(<FraudExplanation result={FRAUD} />);
     expect(screen.getByText(/blocked — fraud detected/i)).toBeInTheDocument();
-    expect(screen.getByText('Blocked')).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent('Blocked');
   });
 
   test('renders REVIEW verdict', () => {
     render(<FraudExplanation result={REVIEW} />);
-    expect(screen.getByText(/under review/i)).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent('Under Review');
   });
 
   test('shows review notes when present', () => {

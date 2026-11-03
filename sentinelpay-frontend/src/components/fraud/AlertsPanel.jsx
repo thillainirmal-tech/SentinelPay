@@ -18,7 +18,6 @@ import {
   Box, Card, CardContent, Typography, Chip, IconButton,
   List, ListItem, ListItemText, ListItemIcon,
   Divider, Button, Tooltip, Badge, Collapse,
-  Alert as MuiAlert,
 } from '@mui/material';
 import ShieldIcon         from '@mui/icons-material/Shield';
 import BlockIcon          from '@mui/icons-material/Block';

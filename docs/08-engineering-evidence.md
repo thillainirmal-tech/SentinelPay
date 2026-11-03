@@ -10,7 +10,7 @@ Use this guide to inspect the implementation and distinguish existing mechanisms
 | How are concurrent writes coordinated? | [BankAccountRepository](../bank-service/src/main/java/com/fraud/bank/repository/BankAccountRepository.java) exposes the locking lookup used by the service. | Concurrent requests against the actual MySQL database, with persisted balance and ledger assertions. |
 | What identifies a repeated operation? | [BankTransaction](../bank-service/src/main/java/com/fraud/bank/entity/BankTransaction.java) defines the ledger and transaction/type uniqueness boundary. | Separate DEBIT and REFUND replay cases, plus concurrent duplicate requests. |
 | Which modules are built? | The root [Maven reactor](../pom.xml) lists the shared DTO and six backend services. | End-to-end payment and failure-path tests across services. |
-| What does CI execute? | [Build and test workflow](../.github/workflows/ci.yml) runs Maven verification on Java 17. | Backend test classes and a frontend CI job. A green Maven build alone does not demonstrate payment correctness. |
+| What does CI execute? | [Backend workflow](../.github/workflows/ci.yml) runs Maven verification on Java 17; [frontend workflow](../.github/workflows/frontend.yml) runs a locked install, React regression tests, and a production build on Node 22. | Backend test classes and cross-service payment regression coverage. A green build alone does not demonstrate payment correctness. |
 
 The bank service uses the MySQL JDBC driver and the [Compose stack](../docker-compose.yml) uses `mysql:8.0`. Database integration tests should use that engine; substituting PostgreSQL or an in-memory database would not validate the same locking and constraint behavior.
 
@@ -32,7 +32,7 @@ npm test -- --watchAll=false --runInBand
 npm run build
 ```
 
-The frontend already contains tests under `src/__tests__`; the current GitHub Actions workflow does not run them. There are currently no backend `src/test` suites in this checkout. Record test counts and failures alongside command output instead of treating a successful build as proof of test coverage.
+The frontend tests under `src/__tests__` run in GitHub Actions alongside a production build with lint warnings treated as errors. Use Node 22 and npm 10 to match the frontend runner. There are currently no backend `src/test` suites in this checkout. Record test counts and failures alongside command output instead of treating a successful build as proof of test coverage.
 
 For a local stack, follow the [deployment guide](06-deployment-guide.md), review `.env.example`, and supply private local values without committing them. Stack startup, model-provider access, email delivery, and deployment availability are separate checks from compilation. Use synthetic accounts and transactions for evaluation.
 

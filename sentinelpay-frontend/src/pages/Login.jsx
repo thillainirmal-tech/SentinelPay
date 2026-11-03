@@ -21,7 +21,6 @@ import toast          from 'react-hot-toast';
 import { useAuth }    from '../context/AuthContext';
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const PWD_PATTERN   = /^(?=.*[0-9]).{6,}$/;
 
 const FIELD_RULES = {
   email: {

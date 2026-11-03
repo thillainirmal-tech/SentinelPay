@@ -10,7 +10,7 @@
  *   0.60 – 1.00 → FRAUD   (red)
  */
 
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import { Box, Typography, useTheme } from '@mui/material';
 
 const RADIUS     = 72;

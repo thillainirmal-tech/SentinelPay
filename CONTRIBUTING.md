@@ -10,4 +10,6 @@ Thank you for helping improve SentinelPay. Before starting a substantial change,
 4. Keep each pull request focused and document observable behaviour changes.
 5. Update tests and documentation when behaviour changes.
 
+For frontend changes, use Node 22 and npm 10 to match CI. From `sentinelpay-frontend`, run `npm ci`, `npm test -- --watchAll=false --runInBand`, and `npm run build`. CI also treats build lint warnings as errors. Commit any intentional dependency changes together with the updated lockfile; do not use `--force` or `--legacy-peer-deps` to bypass dependency conflicts.
+
 Bug reports should include reproduction steps, expected behaviour, actual behaviour, and relevant sanitized logs. Security reports must follow [SECURITY.md](SECURITY.md) instead of a public issue.

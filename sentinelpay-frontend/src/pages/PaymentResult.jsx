@@ -130,7 +130,7 @@ export default function PaymentResult() {
     poll();
 
     return () => { isMounted.current = false; };
-  }, [transactionId]);
+  }, [transactionId, recordTransaction]);
 
   // ── Derived display values ─────────────────────────────────────────────────
   const overallStatus = result?.overallStatus ?? null;
