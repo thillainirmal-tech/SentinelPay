@@ -6,6 +6,7 @@ body:
     attributes:
       value: |
         Thanks for helping improve SentinelPay. Start with the problem and invariants.
+        Do not include credentials, tokens, personal data, or unredacted production logs.
         Please do not begin a large implementation until the design scope is agreed.
 
   - type: textarea
@@ -21,7 +22,7 @@ body:
     id: current_behavior
     attributes:
       label: Current behavior and evidence
-      description: Link relevant code, logs, API contracts, issues, or reproducible observations.
+      description: Link relevant code, redacted logs, API contracts, issues, or reproducible observations. Remove credentials, tokens, and personal data before submitting.
       placeholder: Describe what SentinelPay does today and provide supporting links.
     validations:
       required: true
