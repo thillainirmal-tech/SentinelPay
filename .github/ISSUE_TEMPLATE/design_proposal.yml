@@ -1,0 +1,85 @@
+name: Design proposal
+description: Propose a significant domain, architecture, API, data-model, or reliability change
+title: "design: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve SentinelPay. Start with the problem and invariants.
+        Please do not begin a large implementation until the design scope is agreed.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem and user impact
+      description: Explain the concrete limitation, failure mode, or user need.
+      placeholder: What problem exists, who encounters it, and why does it matter?
+    validations:
+      required: true
+
+  - type: textarea
+    id: current_behavior
+    attributes:
+      label: Current behavior and evidence
+      description: Link relevant code, logs, API contracts, issues, or reproducible observations.
+      placeholder: Describe what SentinelPay does today and provide supporting links.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed design
+      description: Describe components, responsibilities, APIs, state transitions, and persistence changes.
+      placeholder: Include a sequence, state table, or pseudocode where it improves clarity.
+    validations:
+      required: true
+
+  - type: textarea
+    id: invariants
+    attributes:
+      label: Safety and consistency invariants
+      description: State what must remain true during retries, failures, and concurrent requests.
+      placeholder: |
+        Examples:
+        - The same idempotency key cannot change a balance twice.
+        - Persisted ledger totals must agree with the final balance.
+    validations:
+      required: true
+
+  - type: textarea
+    id: failure_modes
+    attributes:
+      label: Failure modes and recovery
+      description: Cover timeouts, partial failure, duplicate delivery, concurrency, and compensation.
+    validations:
+      required: true
+
+  - type: textarea
+    id: compatibility
+    attributes:
+      label: Compatibility and migration
+      description: Identify affected APIs, events, schemas, configuration, and deployment steps.
+    validations:
+      required: true
+
+  - type: textarea
+    id: validation
+    attributes:
+      label: Validation plan
+      description: List deterministic tests, observability signals, and acceptance criteria.
+      placeholder: Prefer repeatable automated tests; do not depend on sleeps or paid services.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: readiness
+    attributes:
+      label: Proposal checklist
+      options:
+        - label: I searched existing issues and discussions for overlapping work.
+          required: true
+        - label: This proposal contains no credentials, private data, or production secrets.
+          required: true
+        - label: I will wait for scope agreement before starting a large implementation.
+          required: true
