@@ -14,6 +14,7 @@ Complete reference documentation for the SentinelPay platform.
 | [06 — Deployment Guide](./06-deployment-guide.md) | Docker Compose setup, environment variables reference, database init, production considerations |
 | [07 — Scalability & Improvements](./07-scalability-and-improvements.md) | Performance characteristics, horizontal scaling strategy, planned features, load testing guide |
 | [08 — Engineering Evidence](./08-engineering-evidence.md) | Source review path, verification commands, CI coverage limits, payment regression criteria, benchmark reproducibility |
+| [09 — Payment Lifecycle Design](./09-payment-lifecycle-design.md) | Authorization holds, capture, reversal, settlement, refunds, idempotency, concurrency, and reconciliation invariants |
 
 ---
 
